@@ -1,9 +1,21 @@
+// ─── DRILL IMPORTS (swap this line only) ───
+// import ActiveDrill from './components/drills/ButtonBoard'
+// import ActiveDrill from './components/drills/CardCollection'
+// import ActiveDrill from './components/drills/FrostedNavbar'
+// import ActiveDrill from './components/drills/AnimatedList'
+// import ActiveDrill from './components/drills/ThemeToggle'
+
+// ─── PROJECT IMPORTS (never touch these) ───
 import Sidebar from './components/Sidebar'
 import Editor from './components/Editor'
-import Echobar from './components/drills/Echobar'
 import { useState } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+
+const DRILL_MODE = false; // ← flip to false when done drilling
 
 function App() {
+
+  if (DRILL_MODE) return <ActiveDrill />;
 
   const [savedPrompts, setSavedPrompts] = useState([]);
 
@@ -13,7 +25,19 @@ function App() {
         <Sidebar prompts={savedPrompts} />
       </div>
       <div className="col-span-3">
-        <Editor modifyPrompts={setSavedPrompts}/>
+
+        <Routes>
+          
+          <Route path='/' element={<Navigate to="/create"/>}></Route>
+
+          <Route path='/create' element={<Editor modifyPrompts={setSavedPrompts}/>}></Route>
+
+          <Route path='/dashboard' element={
+            <div>Dashboard Coming Soon...</div>
+          }></Route>
+
+        </Routes>
+
       </div>
     </div>
   );
