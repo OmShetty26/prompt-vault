@@ -2,7 +2,7 @@ function Sidebar({prompts}) {
     const prompt_list = prompts.map( (prompt, index) => (
         <div key={index} className="flex justify-start items-center min-h-12 w-full pl-4 rounded-full hover:bg-gray-400/10">
             <h2>
-                { prompt }
+                { prompt.title }
             </h2>
         </div>
     ));

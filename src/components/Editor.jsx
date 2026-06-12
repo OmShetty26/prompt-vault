@@ -1,10 +1,10 @@
 import { useState } from "react";
 
 function Editor({modifyPrompts}) {
-    const [promptText, setPromptText] = useState("");
+    const [promptData, setPromptData] = useState({title:"", category:"",content:""});
 
     const handleSave = async () => {
-        if (!promptText.trim()) return;
+        if (!promptData.content.trim()) return;
 
         try {
             const response = await fetch("http://127.0.0.1:8000/api/prompts", {
@@ -13,15 +13,15 @@ function Editor({modifyPrompts}) {
                     "Content-type": "application/json"
                 },
                 body: JSON.stringify({
-                    title: "My First React Prompt",
-                    content: promptText
+                    title: promptData.title,
+                    content: promptData.content
                 })
             });
 
             if (response.ok) {
                 const data = await response.json();
                 console.log("Server responded:", data);
-                setPromptText("");
+                setPromptData({title: "", category:"", content:""});
                 alert("Boom! Prompt sent to Python."); 
             } else {
                 const errorData = await response.json();
@@ -36,12 +36,30 @@ function Editor({modifyPrompts}) {
 
     return (
         <div className="h-dvh bg-black text-white grid grid-cols-1 gap-8 p-4">
-            <div className="h-[85vh]">
-                <textarea autoFocus name="prompt-inp" id="txt-input" placeholder="Start writing your prompt..." value={promptText} className="bg-transparent resize-none outline-none w-full h-full caret-indigo-400 border border-zinc-600 rounded-xl p-4" onChange={(event) => setPromptText(event.target.value)}></textarea>
+            <div className="flex gap-3 font-bold pt-3">
+                <div>
+                    <input name="title-inp" type="text" value={promptData.title} onChange={(e) => {
+                        setPromptData(prev => ({...prev, title: e.target.value}));
+                    }} className="text-3xl bg-gray-500 border-b-4 border-white pb-1"/>
+                </div>
+                <div>
+                    <select name="cat-list" id="ctgDropDown" value={promptData.category} onChange={(e) => {
+                        setPromptData(prev => ({...prev, category: e.target.value}));
+                    }} className="text-gray-500 bg-transparent border border-zinc-600 rounded-md p-2">
+                        <option value="code-gen">Code Generation</option>
+                        <option value="debug">Debugging & Refactoring</option>
+                        <option value="data">Data Analysis</option>
+                        <option value="writing">Content & Writing</option>
+                        <option value="system">System Prompt</option>
+                    </select>
+                </div>
             </div>
-            <div className="w-full h-full flex justify-end align-middle">
+            <div className="h-[65vh]">
+                <textarea autoFocus name="prompt-inp" id="txt-input" placeholder="Start writing your prompt..." value={promptData.content} className="bg-transparent resize-none outline-none w-full h-full caret-indigo-400 border border-zinc-600 rounded-xl p-4" onChange={(event) => setPromptData(prev => ({...prev, content: event.target.value}))}></textarea>
+            </div>
+            <div className="w-full  flex justify-end align-middle">
                 <button id="submit-btn" onClick={ () => {
-                    modifyPrompts(prev => [...prev, promptText]);
+                    modifyPrompts(prev => [...prev, promptData]);
                     handleSave();
                 }} className="rounded-full bg-yellow-500 hover:bg-blue-400 hover:shadow-yellow-400/30 hover:shadow-lg w-[25vh] duration-200 transition-all">
                     Submit

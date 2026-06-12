@@ -8,7 +8,7 @@
 // ─── PROJECT IMPORTS (never touch these) ───
 import Sidebar from './components/Sidebar'
 import Editor from './components/Editor'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 
 const DRILL_MODE = false; // ← flip to false when done drilling
@@ -18,6 +18,20 @@ function App() {
   if (DRILL_MODE) return <ActiveDrill />;
 
   const [savedPrompts, setSavedPrompts] = useState([]);
+
+  useEffect(() => {
+    const fetchPrompts = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/prompts");
+        const data = await response.json();
+        setSavedPrompts(data);
+      } catch (error) {
+        console.error("Failed to hydrate prompts: ", error);
+      }
+      
+    };
+    fetchPrompts();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white grid grid-cols-4">
