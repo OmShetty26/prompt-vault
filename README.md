@@ -1,4 +1,5 @@
 # PromptVault Client
+
 A React-based frontend client for organizing, categorizing, and retrieving LLM prompts. This UI serves as the presentation layer for the PromptVault full-stack architecture.
 
 
@@ -17,17 +18,20 @@ A React-based frontend client for organizing, categorizing, and retrieving LLM p
 
 ## Local Setup
 
-1. Clone the repository:
+1. Clone the [frontend repository](https://github.com/OmShetty26/prompt-vault.git):
    ```bash
-   git clone [https://github.com/OmShetty26/prompt-vault.git](https://github.com/OmShetty26/prompt-vault.git)
+   git clone https://github.com/OmShetty26/prompt-vault.git
    cd prompt-vault
+   ```
 
 2. Install dependencies:
     ```bash
     npm install
+    ```
 
 3. Start the development server:
     ```bash
     npm run dev
+    ```
 
 4. Open [http://localhost:5173](http://localhost:5173) in your browser. (Note: Ensure the backend API is running concurrently to fetch saved prompts).
