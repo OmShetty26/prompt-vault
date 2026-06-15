@@ -1,16 +1,33 @@
-# React + Vite
+# PromptVault Client
+A React-based frontend client for organizing, categorizing, and retrieving LLM prompts. This UI serves as the presentation layer for the PromptVault full-stack architecture.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+*The FastAPI backend repository for this project is located [here](https://github.com/OmShetty26/prompt-vault-backend).*
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
+* **Framework:** React + Vite
+* **Styling:** Tailwind CSS
+* **Routing:** React Router DOM
 
-## React Compiler
+## Architecture & Features
+* **Master-Detail Interface:** Implements a dual-pane layout with independent sidebar scrolling to ensure the main workspace remains static during navigation.
+* **Complex State Management:** Groups related input fields (Title, Category, Content) into single React state objects to ensure predictable data payloads.
+* **Asynchronous Hydration:** Utilizes `useEffect` hooks to fetch and populate the interface with data from the REST API immediately upon mounting.
+* **Decoupled Architecture:** Built as a standalone client to allow for independent deployment (e.g., Vercel) from the backend API.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Local Setup
 
-## Expanding the ESLint configuration
+1. Clone the repository:
+   ```bash
+   git clone [https://github.com/OmShetty26/prompt-vault.git](https://github.com/OmShetty26/prompt-vault.git)
+   cd prompt-vault
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. Install dependencies:
+    ```bash
+    npm install
+
+3. Start the development server:
+    ```bash
+    npm run dev
+
+4. Open [http://localhost:5173](http://localhost:5173) in your browser. (Note: Ensure the backend API is running concurrently to fetch saved prompts).
