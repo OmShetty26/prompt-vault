@@ -1,7 +1,14 @@
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
+import { parseVariables } from "../utils";
 
 function Editor({modifyPrompts}) {
     const [promptData, setPromptData] = useState({title:"", category:"",content:""});
+    const [variables, setVariables] = useState([]);
+    const [variableValues, setvariableValues] = useState({});
+
+    useEffect(() => {
+        setVariables(parseVariables(promptData.content));
+    }, [promptData.content]);
 
     const handleSave = async () => {
         if (!promptData.content.trim()) return;
@@ -14,6 +21,7 @@ function Editor({modifyPrompts}) {
                 },
                 body: JSON.stringify({
                     title: promptData.title,
+                    category: promptData.category,
                     content: promptData.content
                 })
             });
@@ -40,12 +48,12 @@ function Editor({modifyPrompts}) {
                 <div>
                     <input name="title-inp" type="text" value={promptData.title} onChange={(e) => {
                         setPromptData(prev => ({...prev, title: e.target.value}));
-                    }} className="text-3xl bg-gray-500 border-b-4 border-white pb-1"/>
+                    }} className="text-3xl bg-transparent font-bold border-b border-zinc-600 pb-2 focus:outline-none focus:border-blue-500 w-full"/>
                 </div>
                 <div>
                     <select name="cat-list" id="ctgDropDown" value={promptData.category} onChange={(e) => {
                         setPromptData(prev => ({...prev, category: e.target.value}));
-                    }} className="text-gray-500 bg-transparent border border-zinc-600 rounded-md p-2">
+                    }} className="bg-transparent border border-zinc-600 text-zinc-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
                         <option value="code-gen">Code Generation</option>
                         <option value="debug">Debugging & Refactoring</option>
                         <option value="data">Data Analysis</option>
@@ -57,6 +65,23 @@ function Editor({modifyPrompts}) {
             <div className="h-[65vh]">
                 <textarea autoFocus name="prompt-inp" id="txt-input" placeholder="Start writing your prompt..." value={promptData.content} className="bg-transparent resize-none outline-none w-full h-full caret-indigo-400 border border-zinc-600 rounded-xl p-4" onChange={(event) => setPromptData(prev => ({...prev, content: event.target.value}))}></textarea>
             </div>
+
+            {variables.length > 0 && (
+                variables.map(variable => (
+                    <div key={variable} className="flex flex-col gap-1">
+                        <label className="text-sm text-zinc-400 font-bold">{variable}</label>
+                        <input type="text" value={variableValues[variable] || ""} onChange={(e) => {
+                            setvariableValues((prev) => (
+                                {...prev, [variable]: e.target.value}
+                            ));
+                        }}
+                        className="bg-transparent border border-zinc-600 rounded-md p-2 focus:outline-none focus:border-blue-500"
+                        />
+                    </div>
+
+                ))
+            )}
+
             <div className="w-full  flex justify-end align-middle">
                 <button id="submit-btn" onClick={ () => {
                     modifyPrompts(prev => [...prev, promptData]);
