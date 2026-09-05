@@ -42,13 +42,15 @@ function App() {
 
         <Routes>
           
-          <Route path='/' element={<Navigate to="/create"/>}></Route>
+          <Route path='/' element={<Navigate to="/dashboard"/>}></Route>
 
           <Route path='/create' element={<Editor modifyPrompts={setSavedPrompts}/>}></Route>
 
           <Route path='/dashboard' element={
             <div>Dashboard Coming Soon...</div>
           }></Route>
+
+          <Route path='/prompt/:id' element={<Editor modifyPrompts={setSavedPrompts}/>}></Route>
 
         </Routes>
 

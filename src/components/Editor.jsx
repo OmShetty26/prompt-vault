@@ -1,21 +1,45 @@
 import { use, useEffect, useState } from "react";
+import { useParams } from 'react-router-dom';
 import { parseVariables } from "../utils";
 
 function Editor({modifyPrompts}) {
-    const [promptData, setPromptData] = useState({title:"", category:"",content:""});
+    const [promptData, setPromptData] = useState({title:"", category:"code-gen",content:""});
     const [variables, setVariables] = useState([]);
     const [variableValues, setvariableValues] = useState({});
+    const {id} = useParams();
 
     useEffect(() => {
         setVariables(parseVariables(promptData.content));
     }, [promptData.content]);
 
+    useEffect(() => {
+        const hydrateEditor = async () => {
+            if (id) {
+                try {
+                    const response = await fetch(`http://127.0.0.1:8000/prompt/${id}`);
+                    const data = await response.json();
+                    setPromptData(data);
+                } catch (error) {
+                    console.log("Failed to fetch prompt: ", error);
+                }
+            } else {
+                setPromptData({title:"", category:"code-gen",content:""});
+            }
+        };
+
+        hydrateEditor();
+
+    }, [id]);
+
     const handleSave = async () => {
         if (!promptData.content.trim()) return;
 
+        let fetchUrl = id ? `http://127.0.0.1:8000/prompt/${id}` : "http://127.0.0.1:8000/api/prompts";
+        let fetchMethod = id ? 'PUT' : 'POST';
+
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/prompts", {
-                method: 'POST',
+            const response = await fetch(fetchUrl, {
+                method: fetchMethod,
                 headers: {
                     "Content-type": "application/json"
                 },
@@ -29,7 +53,16 @@ function Editor({modifyPrompts}) {
             if (response.ok) {
                 const data = await response.json();
                 console.log("Server responded:", data);
-                setPromptData({title: "", category:"", content:""});
+                if (id) {
+                    modifyPrompts((prev) => 
+                        prev.map((prompt) => prompt.id == id ? data : prompt)
+                    );
+                    alert("Modified existing prompt");
+                } else {
+                    modifyPrompts(prev => [...prev, data]);
+                    setPromptData({title: "", category:"", content:""});
+                    alert("Added a new prompt!")
+                }
                 alert("Boom! Prompt sent to Python."); 
             } else {
                 const errorData = await response.json();
@@ -84,7 +117,6 @@ function Editor({modifyPrompts}) {
 
             <div className="w-full  flex justify-end align-middle">
                 <button id="submit-btn" onClick={ () => {
-                    modifyPrompts(prev => [...prev, promptData]);
                     handleSave();
                 }} className="rounded-full bg-yellow-500 hover:bg-blue-400 hover:shadow-yellow-400/30 hover:shadow-lg w-[25vh] duration-200 transition-all">
                     Submit
