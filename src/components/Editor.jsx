@@ -1,11 +1,12 @@
 import { use, useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
-import { parseVariables } from "../utils";
+import { parseVariables, parsePromptSegments } from "../utils";
 
 function Editor({modifyPrompts}) {
     const [promptData, setPromptData] = useState({title:"", category:"code-gen",content:""});
     const [variables, setVariables] = useState([]);
     const [variableValues, setvariableValues] = useState({});
+    const [editingVariable, setEditingVariable] = useState("");
     const {id} = useParams();
 
     useEffect(() => {
@@ -97,6 +98,17 @@ function Editor({modifyPrompts}) {
             </div>
             <div className="h-[65vh]">
                 <textarea autoFocus name="prompt-inp" id="txt-input" placeholder="Start writing your prompt..." value={promptData.content} className="bg-transparent resize-none outline-none w-full h-full caret-indigo-400 border border-zinc-600 rounded-xl p-4" onChange={(event) => setPromptData(prev => ({...prev, content: event.target.value}))}></textarea>
+                {
+                    parsePromptSegments(promptData.content).map(text => {
+                        if (text.type === "text") {
+                            return text.value
+                        } else {
+                            return `[ ${text.value} ]`
+                        }
+                    }
+
+                    )
+                }
             </div>
 
             {variables.length > 0 && (
