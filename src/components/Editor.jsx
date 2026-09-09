@@ -1,6 +1,7 @@
 import { use, useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
 import { parseVariables, parsePromptSegments } from "../utils";
+import PromptEditor from "./PromptEditor";
 
 function Editor({modifyPrompts}) {
     const [promptData, setPromptData] = useState({title:"", category:"code-gen",content:""});
@@ -76,6 +77,10 @@ function Editor({modifyPrompts}) {
 
     };
 
+    const handleContentChange = (updatedText) => {
+        setPromptData(prev => ({...prev, content: updatedText}));
+    };
+
     return (
         <div className="h-dvh bg-black text-white grid grid-cols-1 gap-8 p-4">
             <div className="flex gap-3 font-bold pt-3">
@@ -97,21 +102,10 @@ function Editor({modifyPrompts}) {
                 </div>
             </div>
             <div className="h-[65vh]">
-                <textarea autoFocus name="prompt-inp" id="txt-input" placeholder="Start writing your prompt..." value={promptData.content} className="bg-transparent resize-none outline-none w-full h-full caret-indigo-400 border border-zinc-600 rounded-xl p-4" onChange={(event) => setPromptData(prev => ({...prev, content: event.target.value}))}></textarea>
-                {
-                    parsePromptSegments(promptData.content).map(text => {
-                        if (text.type === "text") {
-                            return text.value
-                        } else {
-                            return `[ ${text.value} ]`
-                        }
-                    }
-
-                    )
-                }
+                <PromptEditor content={promptData.content} onContentChange={handleContentChange}/>
             </div>
 
-            {variables.length > 0 && (
+            {/* {variables.length > 0 && (
                 variables.map(variable => (
                     <div key={variable} className="flex flex-col gap-1">
                         <label className="text-sm text-zinc-400 font-bold">{variable}</label>
@@ -125,7 +119,7 @@ function Editor({modifyPrompts}) {
                     </div>
 
                 ))
-            )}
+            )} */}
 
             <div className="w-full  flex justify-end align-middle">
                 <button id="submit-btn" onClick={ () => {
