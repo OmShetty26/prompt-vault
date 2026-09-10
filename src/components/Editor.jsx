@@ -6,8 +6,6 @@ import PromptEditor from "./PromptEditor";
 function Editor({modifyPrompts}) {
     const [promptData, setPromptData] = useState({title:"", category:"code-gen",content:""});
     const [variables, setVariables] = useState([]);
-    const [variableValues, setvariableValues] = useState({});
-    const [editingVariable, setEditingVariable] = useState("");
     const {id} = useParams();
 
     useEffect(() => {
@@ -122,11 +120,14 @@ function Editor({modifyPrompts}) {
             )} */}
 
             <div className="w-full  flex justify-end align-middle">
+
+
                 <button id="submit-btn" onClick={ () => {
                     handleSave();
                 }} className="rounded-full bg-yellow-500 hover:bg-blue-400 hover:shadow-yellow-400/30 hover:shadow-lg w-[25vh] duration-200 transition-all">
                     Submit
                 </button>
+
             </div>
         </div>
     )

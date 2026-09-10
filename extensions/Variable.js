@@ -11,6 +11,12 @@ const Variable = Node.create({
     inline: true,
     atom: true,
 
+    addOptions() {
+        return {
+            onEditingChange: () => {}
+        };
+    },
+
     addAttributes() {
         return {
             name: {
