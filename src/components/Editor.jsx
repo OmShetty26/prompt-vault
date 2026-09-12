@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
 import PromptEditor from "./PromptEditor";
-
-import {
-    ChevronDown,
-    Save
-} from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 function Editor({ modifyPrompts }) {
     const [promptData, setPromptData] = useState({
@@ -47,7 +42,9 @@ function Editor({ modifyPrompts }) {
     }, [id]);
 
     const handleSave = async () => {
-        if (!promptData.content.trim()) return;
+        if (!promptData.content.trim()) {
+            return false;
+        }
 
         const fetchUrl = id
             ? `http://127.0.0.1:8000/prompt/${id}`
@@ -78,7 +75,7 @@ function Editor({ modifyPrompts }) {
                     errorData
                 );
 
-                return;
+                return false;
             }
 
             const data = await response.json();
@@ -105,11 +102,16 @@ function Editor({ modifyPrompts }) {
             }
 
             console.log("Prompt saved successfully.");
+
+            return true;
+
         } catch (error) {
             console.error(
                 "Network error while saving prompt:",
                 error
             );
+
+            return false;
         }
     };
 
@@ -310,38 +312,6 @@ function Editor({ modifyPrompts }) {
                             />
                         </div>
 
-                        {/* Temporary compact Save action */}
-                        <button
-                            type="button"
-                            onClick={handleSave}
-                            className="
-                                h-9
-
-                                flex
-                                items-center
-                                gap-2
-
-                                rounded-lg
-
-                                bg-zinc-100
-                                px-3
-
-                                text-sm
-                                font-medium
-                                text-zinc-900
-
-                                transition-all
-                                duration-150
-
-                                hover:bg-white
-
-                                active:scale-[0.97]
-                            "
-                        >
-                            <Save size={15} />
-
-                            <span>Save</span>
-                        </button>
                     </div>
                 </div>
             </header>
@@ -379,6 +349,7 @@ function Editor({ modifyPrompts }) {
                     <PromptEditor
                         content={promptData.content}
                         onContentChange={handleContentChange}
+                        onSave={handleSave}
                     />
                 </div>
             </main>
