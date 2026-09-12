@@ -1,1 +1,42 @@
 @import "tailwindcss";
+
+/* App scrollbar */
+
+.app-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color:
+        rgba(161, 161, 170, 0.3)
+        transparent;
+}
+
+.app-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.app-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.app-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(161, 161, 170, 0.25);
+
+    border: 2px solid transparent;
+    border-radius: 9999px;
+
+    background-clip: padding-box;
+}
+
+.app-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(161, 161, 170, 0.45);
+
+    background-clip: padding-box;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: rgb(82 82 91);
+    pointer-events: none;
+    height: 0;
+}

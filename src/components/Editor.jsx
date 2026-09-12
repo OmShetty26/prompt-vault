@@ -1,48 +1,68 @@
-import { use, useEffect, useState } from "react";
-import { useParams } from 'react-router-dom';
-import { parseVariables, parsePromptSegments } from "../utils";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+
 import PromptEditor from "./PromptEditor";
 
-function Editor({modifyPrompts}) {
-    const [promptData, setPromptData] = useState({title:"", category:"code-gen",content:""});
-    const [variables, setVariables] = useState([]);
-    const {id} = useParams();
+import {
+    ChevronDown,
+    Save
+} from "lucide-react";
 
-    useEffect(() => {
-        setVariables(parseVariables(promptData.content));
-    }, [promptData.content]);
+function Editor({ modifyPrompts }) {
+    const [promptData, setPromptData] = useState({
+        title: "",
+        category: "code-gen",
+        content: ""
+    });
+
+    const { id } = useParams();
 
     useEffect(() => {
         const hydrateEditor = async () => {
             if (id) {
                 try {
-                    const response = await fetch(`http://127.0.0.1:8000/prompt/${id}`);
+                    const response = await fetch(
+                        `http://127.0.0.1:8000/prompt/${id}`
+                    );
+
                     const data = await response.json();
+
                     setPromptData(data);
                 } catch (error) {
-                    console.log("Failed to fetch prompt: ", error);
+                    console.error(
+                        "Failed to fetch prompt:",
+                        error
+                    );
                 }
             } else {
-                setPromptData({title:"", category:"code-gen",content:""});
+                setPromptData({
+                    title: "",
+                    category: "code-gen",
+                    content: ""
+                });
             }
         };
 
         hydrateEditor();
-
     }, [id]);
 
     const handleSave = async () => {
         if (!promptData.content.trim()) return;
 
-        let fetchUrl = id ? `http://127.0.0.1:8000/prompt/${id}` : "http://127.0.0.1:8000/api/prompts";
-        let fetchMethod = id ? 'PUT' : 'POST';
+        const fetchUrl = id
+            ? `http://127.0.0.1:8000/prompt/${id}`
+            : "http://127.0.0.1:8000/api/prompts";
+
+        const fetchMethod = id ? "PUT" : "POST";
 
         try {
             const response = await fetch(fetchUrl, {
                 method: fetchMethod,
+
                 headers: {
-                    "Content-type": "application/json"
+                    "Content-Type": "application/json"
                 },
+
                 body: JSON.stringify({
                     title: promptData.title,
                     category: promptData.category,
@@ -50,88 +70,320 @@ function Editor({modifyPrompts}) {
                 })
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                console.log("Server responded:", data);
-                if (id) {
-                    modifyPrompts((prev) => 
-                        prev.map((prompt) => prompt.id == id ? data : prompt)
-                    );
-                    alert("Modified existing prompt");
-                } else {
-                    modifyPrompts(prev => [...prev, data]);
-                    setPromptData({title: "", category:"", content:""});
-                    alert("Added a new prompt!")
-                }
-                alert("Boom! Prompt sent to Python."); 
-            } else {
+            if (!response.ok) {
                 const errorData = await response.json();
-                console.error("The Bouncer says:", errorData);
-                alert("Rejected! Check the browser console.");
-            }
-        } catch (error) {
-            console.error("Network Error. Is the Python server running?", error);
-        }
 
+                console.error(
+                    "Failed to save prompt:",
+                    errorData
+                );
+
+                return;
+            }
+
+            const data = await response.json();
+
+            if (id) {
+                modifyPrompts((previousPrompts) =>
+                    previousPrompts.map((prompt) =>
+                        prompt.id == id
+                            ? data
+                            : prompt
+                    )
+                );
+            } else {
+                modifyPrompts((previousPrompts) => [
+                    ...previousPrompts,
+                    data
+                ]);
+
+                setPromptData({
+                    title: "",
+                    category: "code-gen",
+                    content: ""
+                });
+            }
+
+            console.log("Prompt saved successfully.");
+        } catch (error) {
+            console.error(
+                "Network error while saving prompt:",
+                error
+            );
+        }
     };
 
     const handleContentChange = (updatedText) => {
-        setPromptData(prev => ({...prev, content: updatedText}));
+        setPromptData((previousData) => ({
+            ...previousData,
+            content: updatedText
+        }));
     };
 
     return (
-        <div className="h-dvh bg-black text-white grid grid-cols-1 gap-8 p-4">
-            <div className="flex gap-3 font-bold pt-3">
-                <div>
-                    <input name="title-inp" type="text" value={promptData.title} onChange={(e) => {
-                        setPromptData(prev => ({...prev, title: e.target.value}));
-                    }} className="text-3xl bg-transparent font-bold border-b border-zinc-600 pb-2 focus:outline-none focus:border-blue-500 w-full"/>
-                </div>
-                <div>
-                    <select name="cat-list" id="ctgDropDown" value={promptData.category} onChange={(e) => {
-                        setPromptData(prev => ({...prev, category: e.target.value}));
-                    }} className="bg-transparent border border-zinc-600 text-zinc-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
-                        <option value="code-gen">Code Generation</option>
-                        <option value="debug">Debugging & Refactoring</option>
-                        <option value="data">Data Analysis</option>
-                        <option value="writing">Content & Writing</option>
-                        <option value="system">System Prompt</option>
-                    </select>
-                </div>
-            </div>
-            <div className="h-[65vh]">
-                <PromptEditor content={promptData.content} onContentChange={handleContentChange}/>
-            </div>
+        <div
+            className="
+                h-full
+                min-w-0
 
-            {/* {variables.length > 0 && (
-                variables.map(variable => (
-                    <div key={variable} className="flex flex-col gap-1">
-                        <label className="text-sm text-zinc-400 font-bold">{variable}</label>
-                        <input type="text" value={variableValues[variable] || ""} onChange={(e) => {
-                            setvariableValues((prev) => (
-                                {...prev, [variable]: e.target.value}
-                            ));
-                        }}
-                        className="bg-transparent border border-zinc-600 rounded-md p-2 focus:outline-none focus:border-blue-500"
-                        />
+                flex
+                flex-col
+
+                overflow-hidden
+
+                bg-[#0b0b0d]
+                text-zinc-100
+            "
+        >
+            {/* Document header */}
+            <header
+                className="
+                    shrink-0
+
+                    border-b
+                    border-white/[0.06]
+                "
+            >
+                <div
+                    className="
+                        w-full
+                        max-w-4xl
+                        mx-auto
+
+                        px-8
+                        py-4
+                    "
+                >
+                    <div
+                        className="
+                            flex
+                            items-center
+                            gap-3
+                        "
+                    >
+                        {/* Title */}
+                        <div className="flex-1 min-w-0">
+                            <input
+                                name="title-inp"
+                                type="text"
+                                placeholder="Untitled prompt"
+                                value={promptData.title}
+                                onChange={(event) => {
+                                    setPromptData((previousData) => ({
+                                        ...previousData,
+                                        title: event.target.value
+                                    }));
+                                }}
+                                className="
+                                    w-full
+
+                                    bg-transparent
+                                    border-none
+                                    outline-none
+
+                                    text-3xl
+                                    md:text-4xl
+
+                                    font-semibold
+                                    tracking-tight
+
+                                    text-zinc-100
+                                    placeholder:text-zinc-600
+                                "
+                            />
+                        </div>
+
+                        {/* Category */}
+                        <div className="relative shrink-0">
+                            <select
+                                name="cat-list"
+                                id="ctgDropDown"
+                                value={promptData.category}
+                                onChange={(event) => {
+                                    setPromptData((previousData) => ({
+                                        ...previousData,
+                                        category: event.target.value
+                                    }));
+                                }}
+                                className="
+                                    appearance-none
+                                    h-9
+
+                                    rounded-lg
+                                    border
+                                    border-transparent
+
+                                    bg-transparent
+
+                                    pl-3
+                                    pr-8
+
+                                    text-sm
+                                    font-medium
+                                    text-zinc-400
+
+                                    outline-none
+
+                                    transition-all
+                                    duration-150
+
+                                    hover:bg-white/[0.07]
+                                    hover:text-zinc-200
+
+                                    focus:bg-white/[0.07]
+                                    focus:border-white/[0.08]
+                                    focus:ring-1
+                                    focus:ring-white/[0.06]
+
+                                    [color-scheme:dark]
+                                "
+                            >
+                                <option
+                                    value="code-gen"
+                                    className="bg-zinc-900 text-zinc-100"
+                                >
+                                    Code Generation
+                                </option>
+
+                                <option
+                                    value="debug"
+                                    className="bg-zinc-900 text-zinc-100"
+                                >
+                                    Debugging & Refactoring
+                                </option>
+
+                                <option
+                                    value="data"
+                                    className="bg-zinc-900 text-zinc-100"
+                                >
+                                    Data Analysis
+                                </option>
+
+                                <option
+                                    value="data"
+                                    className="bg-zinc-900 text-zinc-100"
+                                >
+                                    Research & Summarization
+                                </option>
+
+                                <option
+                                    value="writing"
+                                    className="bg-zinc-900 text-zinc-100"
+                                >
+                                    Content & Writing
+                                </option>
+
+                                <option
+                                    value="data"
+                                    className="bg-zinc-900 text-zinc-100"
+                                >
+                                    Brainstorming & Ideation
+                                </option>
+
+                                <option
+                                    value="system"
+                                    className="bg-zinc-900 text-zinc-100"
+                                >
+                                    System Prompts
+                                </option>
+
+                                <option
+                                    value="data"
+                                    className="bg-zinc-900 text-zinc-100"
+                                >
+                                    General
+                                </option>
+                            </select>
+
+                            <ChevronDown
+                                size={14}
+                                className="
+                                    pointer-events-none
+
+                                    absolute
+                                    right-2.5
+                                    top-1/2
+                                    -translate-y-1/2
+
+                                    text-zinc-500
+                                "
+                            />
+                        </div>
+
+                        {/* Temporary compact Save action */}
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            className="
+                                h-9
+
+                                flex
+                                items-center
+                                gap-2
+
+                                rounded-lg
+
+                                bg-zinc-100
+                                px-3
+
+                                text-sm
+                                font-medium
+                                text-zinc-900
+
+                                transition-all
+                                duration-150
+
+                                hover:bg-white
+
+                                active:scale-[0.97]
+                            "
+                        >
+                            <Save size={15} />
+
+                            <span>Save</span>
+                        </button>
                     </div>
+                </div>
+            </header>
 
-                ))
-            )} */}
+            {/* Scrollable document canvas */}
+            <main
+                className="
+                    flex-1
+                    min-h-0
 
-            <div className="w-full  flex justify-end align-middle">
+                    overflow-y-auto
+                    app-scrollbar
 
+                    bg-white/[0.012]
 
-                <button id="submit-btn" onClick={ () => {
-                    handleSave();
-                }} className="rounded-full bg-yellow-500 hover:bg-blue-400 hover:shadow-yellow-400/30 hover:shadow-lg w-[25vh] duration-200 transition-all">
-                    Submit
-                </button>
+                    shadow-[inset_0_1px_0_rgba(255,255,255,0.015)]
+                "
+            >
+                <div
+                    className="
+                        w-full
+                        max-w-4xl
+                        min-h-full
 
-            </div>
+                        mx-auto
+
+                        flex
+                        flex-col
+
+                        px-8
+                        pt-7
+                        pb-12
+                    "
+                >
+                    <PromptEditor
+                        content={promptData.content}
+                        onContentChange={handleContentChange}
+                    />
+                </div>
+            </main>
         </div>
-    )
-    
-    
+    );
 }
+
 export default Editor;
