@@ -1,6 +1,6 @@
 import { useEditor, EditorContent, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Variable from "../../extensions/Variable";
 import { templateToTiptapJSON } from "../tiptapUtils";
 import {
@@ -171,7 +171,7 @@ function PromptEditor({ content, onContentChange, onSave }) {
         }
     };
 
-    const handleSaveClick = async () => {
+    const handleSaveClick = useCallback(async () => {
         if (saveStatus === "saving") return;
 
         setSaveStatus("saving");
@@ -184,7 +184,6 @@ function PromptEditor({ content, onContentChange, onSave }) {
             setTimeout(() => {
                 setSaveStatus("idle");
             }, 1500);
-
         } else {
             setSaveStatus("error");
 
@@ -192,7 +191,30 @@ function PromptEditor({ content, onContentChange, onSave }) {
                 setSaveStatus("idle");
             }, 2000);
         }
-    };
+    }, [onSave, saveStatus]);
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            const saveShortcut =
+                (event.ctrlKey || event.metaKey) &&
+                event.key.toLowerCase() === "s";
+
+            if (!saveShortcut) return;
+
+            event.preventDefault();
+
+            handleSaveClick();
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener(
+                "keydown",
+                handleKeyDown
+            );
+        };
+    }, [handleSaveClick]);
 
 
     useEffect(() => {
