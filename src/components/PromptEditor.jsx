@@ -46,6 +46,47 @@ function compilePrompt(editor) {
     });
 }
 
+function getStatsText(editor) {
+    return editor.getText({
+        blockSeparator: "\n",
+
+        textSerializers: {
+            variable: ({ node }) => {
+                const value = node.attrs.value || "";
+
+                if (value.trim()) {
+                    return value;
+                }
+
+                return `{{${node.attrs.name}}}`;
+            }
+        }
+    });
+}
+
+function getPromptStats(text) {
+    const trimmedText = text.trim();
+
+    if (!trimmedText) {
+        return {
+            wordCount: 0,
+            estimatedTokens: 0
+        };
+    }
+
+    const wordCount = trimmedText
+        .split(/\s+/)
+        .length;
+
+    const estimatedTokens = Math.ceil(
+        trimmedText.length / 4
+    );
+
+    return {
+        wordCount,
+        estimatedTokens
+    };
+}
 
 function PromptEditor({ content, onContentChange, onSave }) {
     const [variablesReady, setVariablesReady] = useState(true);
@@ -55,6 +96,15 @@ function PromptEditor({ content, onContentChange, onSave }) {
         Boolean(content?.trim())
     );
     const [saveStatus, setSaveStatus] = useState("idle");
+
+    const [promptStats, setPromptStats] = useState(
+        () => getPromptStats(content || "")
+    );
+
+    const {
+        wordCount,
+        estimatedTokens
+    } = promptStats;
 
 
     const editor = useEditor({
@@ -72,7 +122,7 @@ function PromptEditor({ content, onContentChange, onSave }) {
 
         editorProps: {
             attributes: {
-                class: "min-h-[calc(100dvh-10rem)] outline-none text-base leading-7 text-zinc-200 caret-indigo-400"
+                class: "min-h-full outline-none text-base leading-7 text-zinc-200 caret-indigo-400"
             }
         },
 
@@ -91,6 +141,12 @@ function PromptEditor({ content, onContentChange, onSave }) {
 
             setVariablesReady(
                 areVariablesReady(editor)
+            );
+
+            setPromptStats(
+                getPromptStats(
+                    getStatsText(editor)
+                )
             );
         },
     });
@@ -243,6 +299,12 @@ function PromptEditor({ content, onContentChange, onSave }) {
             setVariablesReady(
                 areVariablesReady(editor)
             );
+
+            setPromptStats(
+                getPromptStats(
+                    getStatsText(editor)
+                )
+            );
         });
 
     }, [content, editor]);
@@ -258,12 +320,20 @@ function PromptEditor({ content, onContentChange, onSave }) {
                     ? "Finish editing the variable"
                     : "Compile & Copy";
 
-
     return (
-        <div className="flex-1 flex flex-col min-h-0">
+        <div
+            className="
+                h-full
+                flex-1
+                min-h-0
 
-            {/* Editor actions */}
-            <div className="flex justify-end mb-4">
+                flex
+                flex-col
+            "
+        >
+            {/* ACTION BAR */}
+            <div className="shrink-0 flex justify-end mb-3">
+                {/* Editor actions */}
                 <div
                     className="
                         flex
@@ -521,14 +591,55 @@ function PromptEditor({ content, onContentChange, onSave }) {
             </div>
 
 
-            {/* Actual editable document */}
-            <EditorContent
-                editor={editor}
-                className="flex-1"
-            />
+            {/* ONLY THIS AREA SCROLLS */}
+            <div
+                className="
+                    flex-1
+                    min-h-0
 
+                    overflow-y-auto
+                    app-scrollbar
+
+                    pr-2
+                "
+            >
+                <EditorContent
+                    editor={editor}
+                    className="min-h-full"
+                />
+            </div>
+
+
+            {/* FIXED BOTTOM COUNTER */}
+            <div
+                className="
+                    shrink-0
+
+                    flex
+                    justify-end
+
+                    pt-2
+
+                    select-none
+
+                    text-[11px]
+                    font-medium
+                    text-zinc-600
+
+                    tabular-nums
+                "
+            >
+                <span>
+                    {wordCount}{" "}
+                    {wordCount === 1 ? "word" : "words"}
+                    {" · "}
+                    ≈ {estimatedTokens} tokens
+                </span>
+            </div>
         </div>
     );
+
+
 }
 
 export default PromptEditor;
