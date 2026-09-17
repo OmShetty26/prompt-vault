@@ -322,8 +322,7 @@ function Editor({ modifyPrompts }) {
                     flex-1
                     min-h-0
 
-                    overflow-y-auto
-                    app-scrollbar
+                    overflow-hidden
 
                     bg-white/[0.012]
 
@@ -334,16 +333,20 @@ function Editor({ modifyPrompts }) {
                     className="
                         w-full
                         max-w-4xl
-                        min-h-full
+
+                        h-full
+                        min-h-0
 
                         mx-auto
 
                         flex
                         flex-col
 
+                        overflow-hidden
+
                         px-8
                         pt-7
-                        pb-12
+                        pb-3
                     "
                 >
                     <PromptEditor
