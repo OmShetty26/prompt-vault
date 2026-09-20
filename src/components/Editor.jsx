@@ -23,6 +23,26 @@ function Editor({ modifyPrompts }) {
                     const data = await response.json();
 
                     setPromptData(data);
+
+                    const openedResponse = await fetch(
+                        `http://127.0.0.1:8000/prompt/${id}/open`,
+                        {
+                            method: "POST",
+                        }
+                    );
+
+                    if (openedResponse.ok) {
+                        const updatedPrompt =
+                            await openedResponse.json();
+
+                        setPrompts((previousPrompts) =>
+                            previousPrompts.map((prompt) =>
+                                prompt.id === updatedPrompt.id
+                                    ? updatedPrompt
+                                    : prompt
+                            )
+                        );
+                    }
                 } catch (error) {
                     console.error(
                         "Failed to fetch prompt:",

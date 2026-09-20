@@ -47,7 +47,7 @@ function ProjectApp() {
                 antialiased
             "
         >
-            <Sidebar prompts={savedPrompts} />
+            <Sidebar prompts={savedPrompts} setPrompts={setSavedPrompts} />
 
             <main
                 className="
