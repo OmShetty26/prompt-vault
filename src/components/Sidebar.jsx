@@ -658,6 +658,58 @@ function Sidebar({ prompts, setPrompts }) {
                 border-white/[0.08]
             "
         >
+
+            {/* PV Logo */}
+
+            <div className="shrink-0 px-3 pt-3">
+                <NavLink
+                    to="/"
+                    className="
+                        flex
+                        items-center
+                        gap-2
+
+                        px-2
+                        py-2
+
+                        text-zinc-200
+                    "
+                >
+                    <div
+                        className="
+                            flex
+                            h-7
+                            w-7
+                            items-center
+                            justify-center
+
+                            rounded-lg
+
+                            border
+                            border-white/[0.08]
+
+                            bg-white/[0.06]
+
+                            text-xs
+                            font-semibold
+                            text-zinc-100
+                        "
+                    >
+                        PV
+                    </div>
+
+                    <span
+                        className="
+                            text-sm
+                            font-semibold
+                            tracking-tight
+                        "
+                    >
+                        PromptVault
+                    </span>
+                </NavLink>
+            </div>
+
             {/* New Prompt */}
 
             <div
