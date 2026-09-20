@@ -14,55 +14,83 @@ function Editor({ modifyPrompts }) {
 
     useEffect(() => {
         const hydrateEditor = async () => {
-            if (id) {
-                try {
-                    const response = await fetch(
-                        `http://127.0.0.1:8000/prompt/${id}`
-                    );
-
-                    const data = await response.json();
-
-                    setPromptData(data);
-
-                    const openedResponse = await fetch(
-                        `http://127.0.0.1:8000/prompt/${id}/open`,
-                        {
-                            method: "POST",
-                        }
-                    );
-
-                    if (openedResponse.ok) {
-                        const updatedPrompt =
-                            await openedResponse.json();
-
-                        setPrompts((previousPrompts) =>
-                            previousPrompts.map((prompt) =>
-                                prompt.id === updatedPrompt.id
-                                    ? updatedPrompt
-                                    : prompt
-                            )
-                        );
-                    }
-                } catch (error) {
-                    console.error(
-                        "Failed to fetch prompt:",
-                        error
-                    );
-                }
-            } else {
+            if (!id) {
                 setPromptData({
                     title: "",
                     category: "code-gen",
                     content: ""
                 });
+
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `http://127.0.0.1:8000/prompt/${id}`
+                );
+
+                if (!response.ok) {
+                    console.error(
+                        "Failed to load prompt."
+                    );
+
+                    return;
+                }
+
+                const data = await response.json();
+
+                setPromptData({
+                    title: data.title ?? "",
+                    category:
+                        data.category ?? "code-gen",
+                    content: data.content ?? ""
+                });
+
+
+                const openedResponse = await fetch(
+                    `http://127.0.0.1:8000/prompt/${id}/open`,
+                    {
+                        method: "POST"
+                    }
+                );
+
+                if (openedResponse.ok) {
+                    const updatedPrompt =
+                        await openedResponse.json();
+
+                    modifyPrompts(
+                        (previousPrompts) =>
+                            previousPrompts.map(
+                                (prompt) =>
+                                    prompt.id ===
+                                    updatedPrompt.id
+                                        ? updatedPrompt
+                                        : prompt
+                            )
+                    );
+                } else {
+                    console.error(
+                        "Failed to update last opened time."
+                    );
+                }
+
+            } catch (error) {
+                console.error(
+                    "Failed to fetch prompt:",
+                    error
+                );
             }
         };
 
         hydrateEditor();
+
     }, [id]);
 
     const handleSave = async () => {
-        if (!promptData.content.trim()) {
+        if (
+            !promptData.title.trim() ||
+            !promptData.content.trim()
+        ) {
             return false;
         }
 

@@ -11,6 +11,7 @@ import Editor from "./components/Editor";
 
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import Dashboard from "./components/Dashboard";
 
 const DRILL_MODE = false;
 
@@ -62,22 +63,13 @@ function ProjectApp() {
                 <Routes>
                     <Route
                         path="/"
-                        element={<Navigate to="/dashboard" />}
+                        element={<Dashboard/>}
                     />
 
                     <Route
                         path="/create"
                         element={
                             <Editor modifyPrompts={setSavedPrompts} />
-                        }
-                    />
-
-                    <Route
-                        path="/dashboard"
-                        element={
-                            <div className="p-8 text-zinc-400">
-                                Dashboard Coming Soon...
-                            </div>
                         }
                     />
 
