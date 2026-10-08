@@ -12,10 +12,11 @@ import {
     PinOff,
     Plus,
     Trash2,
+    LogOut
 } from "lucide-react";
 
 
-function Sidebar({ prompts, setPrompts }) {
+function Sidebar({ prompts, setPrompts, onLogout }) {
     const [openMenuId, setOpenMenuId] = useState(null);
 
     const navigate = useNavigate();
@@ -663,7 +664,7 @@ function Sidebar({ prompts, setPrompts }) {
 
             <div className="shrink-0 px-3 pt-3">
                 <NavLink
-                    to="/"
+                    to="/home"
                     className="
                         flex
                         items-center
@@ -848,6 +849,40 @@ function Sidebar({ prompts, setPrompts }) {
                     )}
                 </div>
             </nav>
+
+            <div className="mt-auto border-t border-white/[0.06] p-2">
+                <button
+                    type="button"
+                    onClick={onLogout}
+                    className="
+                        flex
+                        w-full
+                        items-center
+                        gap-2
+
+                        rounded-lg
+                        px-3
+                        py-2
+
+                        text-sm
+                        text-zinc-500
+
+                        transition-colors
+                        duration-150
+
+                        hover:bg-white/[0.04]
+                        hover:text-red-400
+
+                        focus:outline-none
+                        focus:ring-1
+                        focus:ring-white/[0.15]
+                    "
+                >
+                    <LogOut className="h-4 w-4 shrink-0" />
+
+                    <span>Log out</span>
+                </button>
+            </div>
         </aside>
     );
 }
