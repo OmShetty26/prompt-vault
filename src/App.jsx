@@ -9,6 +9,40 @@ import Login from "./components/Login"
 import Register from "./components/Register"
 import LandingPage from "./components/LandingPage";
 
+function AppLayout({ prompts, setPrompts, onLogout }) {
+    return (
+        <div
+            className="
+                flex
+                h-dvh
+                overflow-hidden
+                bg-zinc-950
+                text-zinc-100
+                font-sans
+                antialiased
+            "
+        >
+            <Sidebar
+                prompts={prompts}
+                setPrompts={setPrompts}
+                onLogout={onLogout}
+            />
+
+            <main
+                className="
+                    flex-1
+                    min-w-0
+                    h-full
+                    flex
+                    flex-col
+                    overflow-hidden
+                "
+            >
+                <Outlet />
+            </main>
+        </div>
+    );
+}
 
 function ProjectApp() {
     const [savedPrompts, setSavedPrompts] = useState([]);
@@ -98,37 +132,6 @@ function ProjectApp() {
         }
     };
 
-    function AppLayout({ onLogout }) {
-        return (
-            <div
-                className="
-                    flex
-                    h-dvh
-                    overflow-hidden
-                    bg-zinc-950
-                    text-zinc-100
-                    font-sans
-                    antialiased
-                "
-            >
-                <Sidebar prompts={savedPrompts} setPrompts={setSavedPrompts} onLogout={onLogout}/>
-
-                <main
-                    className="
-                        flex-1
-                        min-w-0
-                        h-full
-                        flex
-                        flex-col
-                        overflow-hidden
-                    "
-                >
-                    <Outlet />
-                </main>
-            </div>
-        );
-    }
-
     return (
         <Routes>
             {/* Public */}
@@ -140,13 +143,23 @@ function ProjectApp() {
             <Route
                 element={
                     <ProtectedRoute authStatus={authStatus}>
-                        <AppLayout onLogout={handleLogout} />
+                        <AppLayout
+                            prompts={savedPrompts}
+                            setPrompts={setSavedPrompts}
+                            onLogout={handleLogout}
+                        />
                     </ProtectedRoute>
                 }
             >
                 <Route path="/home" element={<Dashboard />} />
-                <Route path="/create" element={<Editor modifyPrompts={setSavedPrompts} />} />
-                <Route path="/prompt/:id" element={<Editor modifyPrompts={setSavedPrompts}  />} />
+                <Route
+                    path="/create"
+                    element={<Editor modifyPrompts={setSavedPrompts} />}
+                />
+                <Route
+                    path="/prompt/:id"
+                    element={<Editor modifyPrompts={setSavedPrompts} />}
+                />
             </Route>
         </Routes>
     );

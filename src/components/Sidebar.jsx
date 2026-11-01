@@ -108,7 +108,7 @@ function Sidebar({ prompts, setPrompts, onLogout }) {
     const handleTogglePin = async (prompt) => {
         try {
             const response = await fetch(
-                `http://127.0.0.1:8000/prompt/${prompt.id}/pin`,
+                `http://localhost:8000/prompt/${prompt.id}/pin`,
                 {
                     method: "PATCH",
 
@@ -121,6 +121,8 @@ function Sidebar({ prompts, setPrompts, onLogout }) {
                         is_pinned:
                             !prompt.is_pinned,
                     }),
+
+                    credentials: "include"
                 }
             );
 
@@ -175,9 +177,10 @@ function Sidebar({ prompts, setPrompts, onLogout }) {
 
         try {
             const response = await fetch(
-                `http://127.0.0.1:8000/prompt/${prompt.id}`,
+                `http://localhost:8000/prompt/${prompt.id}`,
                 {
                     method: "DELETE",
+                    credentials: "include"
                 }
             );
 
@@ -237,7 +240,7 @@ function Sidebar({ prompts, setPrompts, onLogout }) {
 
         try {
             const response = await fetch(
-                `http://127.0.0.1:8000/prompt/${prompt.id}/rename`,
+                `http://localhost:8000/prompt/${prompt.id}/rename`,
                 {
                     method: "PATCH",
 
@@ -248,6 +251,8 @@ function Sidebar({ prompts, setPrompts, onLogout }) {
                     body: JSON.stringify({
                         title,
                     }),
+
+                    credentials: "include"
                 }
             );
 
