@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import PromptEditor from "./PromptEditor";
 import { ChevronDown } from "lucide-react";
@@ -26,7 +26,8 @@ function Editor({ modifyPrompts }) {
 
             try {
                 const response = await fetch(
-                    `http://127.0.0.1:8000/prompt/${id}`
+                    `http://localhost:8000/prompt/${id}`,
+                    {credentials: "include"}
                 );
 
                 if (!response.ok) {
@@ -48,9 +49,10 @@ function Editor({ modifyPrompts }) {
 
 
                 const openedResponse = await fetch(
-                    `http://127.0.0.1:8000/prompt/${id}/open`,
+                    `http://localhost:8000/prompt/${id}/open`,
                     {
-                        method: "POST"
+                        method: "POST",
+                        credentials: "include"
                     }
                 );
 
@@ -95,14 +97,16 @@ function Editor({ modifyPrompts }) {
         }
 
         const fetchUrl = id
-            ? `http://127.0.0.1:8000/prompt/${id}`
-            : "http://127.0.0.1:8000/api/prompts";
+            ? `http://localhost:8000/prompt/${id}`
+            : "http://localhost:8000/api/prompts";
 
         const fetchMethod = id ? "PUT" : "POST";
 
         try {
             const response = await fetch(fetchUrl, {
                 method: fetchMethod,
+
+                credentials: "include",
 
                 headers: {
                     "Content-Type": "application/json"
